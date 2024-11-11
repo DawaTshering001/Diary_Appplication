@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../screens/authentication_screen.dart'; // Import your authentication screen
 
 class SettingsPage extends StatelessWidget {
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,8 +83,7 @@ class SettingsPage extends StatelessWidget {
             title: Text('Logout'),
             trailing: Icon(Icons.exit_to_app),
             onTap: () {
-              // Logout functionality
-              _logout(context);
+              _logout(context); // Call the logout function
             },
           ),
         ],
@@ -121,12 +124,21 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  // Logout functionality (dummy implementation)
-  void _logout(BuildContext context) {
-    // Clear user session and redirect to login page (implement your logic)
+  // Logout functionality
+  void _logout(BuildContext context) async {
+    // Clear stored data
+    await storage.delete(key: 'diary_pin'); // Remove the PIN
+    await storage.delete(key: 'seenOnboarding'); // Optionally clear onboarding flag
+
+    // Show logout confirmation message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('You have logged out successfully')),
     );
-    // Navigate back to login page or splash screen
+
+    // Navigate to AuthenticationScreen for re-login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => AuthenticationScreen()),
+    );
   }
 }
