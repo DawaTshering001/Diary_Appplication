@@ -1,3 +1,4 @@
+import 'dart:convert';  // Import this for base64 encoding and decoding
 import 'dart:typed_data';
 
 class DiaryEntry {
@@ -6,9 +7,9 @@ class DiaryEntry {
   final String content;
   final DateTime date;
   final String? mood;
-  final String? imagePath;  // Path to the image
-  final Uint8List? image;   // Alternative: store image as bytes
-  
+  final String? imagePath;
+  final Uint8List? image;
+
   DiaryEntry({
     this.id,
     required this.title,
@@ -19,6 +20,7 @@ class DiaryEntry {
     this.image,
   });
 
+  // Convert DiaryEntry object to a map for saving in the database
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -26,12 +28,12 @@ class DiaryEntry {
       'content': content,
       'date': date.toIso8601String(),
       'mood': mood,
-      'imagePath': imagePath,  // Save image path
-      // If storing image as bytes, encode and save it here if needed
-      'image': image,  // Or save encoded image bytes as base64 string if using DB
+      'imagePath': imagePath,
+      'image': image != null ? base64Encode(image!) : null,
     };
   }
 
+  // Convert map to a DiaryEntry object
   static DiaryEntry fromMap(Map<String, dynamic> map) {
     return DiaryEntry(
       id: map['id'],
@@ -39,8 +41,29 @@ class DiaryEntry {
       content: map['content'],
       date: DateTime.parse(map['date']),
       mood: map['mood'],
-      imagePath: map['imagePath'], // Retrieve image path
-      image: map['image'], // Retrieve image bytes if using in memory or DB
+      imagePath: map['imagePath'],
+      image: map['image'] != null ? base64Decode(map['image']) : null,  // Decode the base64 string to Uint8List
+    );
+  }
+
+  // Add a copyWith method to create a copy with modified values
+  DiaryEntry copyWith({
+    int? id,
+    String? title,
+    String? content,
+    DateTime? date,
+    String? mood,
+    String? imagePath,
+    Uint8List? image,
+  }) {
+    return DiaryEntry(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      date: date ?? this.date,
+      mood: mood ?? this.mood,
+      imagePath: imagePath ?? this.imagePath,
+      image: image ?? this.image,
     );
   }
 }

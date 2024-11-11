@@ -94,4 +94,4 @@ class EntryCard extends StatelessWidget {
       },
     );
   }
-}
+} 

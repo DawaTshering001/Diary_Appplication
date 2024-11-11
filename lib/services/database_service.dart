@@ -15,28 +15,42 @@ class DatabaseService {
     String path = join(await getDatabasesPath(), 'diary.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 3, // Updated version to 3
       onCreate: (db, version) async {
         await db.execute(
-          'CREATE TABLE entries(id INTEGER PRIMARY KEY, title TEXT, content TEXT, date TEXT, mood TEXT)',
+          'CREATE TABLE entries(id INTEGER PRIMARY KEY, title TEXT, content TEXT, date TEXT, mood TEXT, imagePath TEXT, image BLOB)',
         );
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute('ALTER TABLE entries ADD COLUMN mood TEXT');
         }
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE entries ADD COLUMN imagePath TEXT');
+          await db.execute('ALTER TABLE entries ADD COLUMN image BLOB');
+        }
       },
     );
   }
-
-  Future<void> insertEntry(DiaryEntry entry) async {
-    final db = await database;
-    await db.insert(
+Future<DiaryEntry?> insertEntry(DiaryEntry entry) async {
+  final db = await database;
+  try {
+    // Perform the insert operation and capture the generated ID
+    final id = await db.insert(
       'entries',
       entry.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    // Return the updated entry with the assigned id
+    return entry.copyWith(id: id);  // Ensure the entry gets its id
+  } catch (e) {
+    print('Error adding entry: $e');
+    return null; // Return null if there was an error
   }
+}
+
+
 
   Future<List<DiaryEntry>> fetchEntries() async {
     final db = await database;

@@ -67,6 +67,7 @@ class EntryDetailPage extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    // Show confirmation dialog for deletion
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -75,11 +76,12 @@ class EntryDetailPage extends StatelessWidget {
           content: Text('Are you sure you want to delete this entry?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(), // Close the dialog
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
+                // Proceed with the deletion
                 await _deleteEntryLocally(context);
                 Navigator.of(context).pop(); // Close the dialog
                 Navigator.of(context).pop(); // Go back to the previous screen
@@ -93,24 +95,23 @@ class EntryDetailPage extends StatelessWidget {
   }
 
   Future<void> _deleteEntryLocally(BuildContext context) async {
-  try {
-    if (entry.id != null) {
-      await _dbService.deleteEntry(entry.id!); // Delete entry from the database
+    try {
+      if (entry.id != null) {
+        await _dbService.deleteEntry(entry.id!); // Delete entry from the database
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Entry deleted successfully')),
+        );
+        Navigator.of(context).pop(); // Close current screen (go back)
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: Entry ID is null.')),
+        );
+      }
+    } catch (e) {
+      // Error handling
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Entry deleted successfully')),
-      );
-      Navigator.of(context).pop(); // Go back to the previous screen
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: Entry ID is null.')),
+        SnackBar(content: Text('Failed to delete entry: $e')),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to delete entry: $e')),
-    );
   }
-}
-
-
 }

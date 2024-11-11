@@ -5,6 +5,7 @@ import '../models/diary_entry.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'dart:typed_data';  // Import this to use Uint8List
 
 class AddEditEntryPage extends StatefulWidget {
   @override
@@ -169,15 +170,25 @@ class _AddEditEntryPageState extends State<AddEditEntryPage> {
     }
   }
 
-  // Function to save the entry
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
+      // Convert the image file to Uint8List (bytes) if an image is selected
+      Uint8List? imageBytes;
+      if (_image != null) {
+        imageBytes = await _image!.readAsBytes();
+      }
+
+      // Create a new entry with the provided data
       final newEntry = DiaryEntry(
         title: _title,
         content: _content,
         date: _date,
+        image: imageBytes,  // Pass the image bytes to the DiaryEntry model
       );
+
+      // Save the entry using the provider
       Provider.of<EntryProvider>(context, listen: false).addEntry(newEntry);
       Navigator.pop(context);
     }
