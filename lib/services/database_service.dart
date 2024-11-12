@@ -32,7 +32,7 @@ class DatabaseService {
       },
     );
   }
-Future<DiaryEntry?> insertEntry(DiaryEntry entry) async {
+Future<int?> insertEntry(DiaryEntry entry) async {
   final db = await database;
   try {
     // Perform the insert operation and capture the generated ID
@@ -41,15 +41,12 @@ Future<DiaryEntry?> insertEntry(DiaryEntry entry) async {
       entry.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-
-    // Return the updated entry with the assigned id
-    return entry.copyWith(id: id);  // Ensure the entry gets its id
+    return id; // Return the ID of the inserted entry
   } catch (e) {
     print('Error adding entry: $e');
     return null; // Return null if there was an error
   }
 }
-
 
 
   Future<List<DiaryEntry>> fetchEntries() async {

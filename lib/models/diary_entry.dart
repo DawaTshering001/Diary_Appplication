@@ -4,30 +4,38 @@ import 'dart:typed_data';
 class DiaryEntry {
   final int? id;
   final String title;
-  final String content;
+  String _content;  // Make _content private and mutable
   final DateTime date;
-  final String? mood;
+  String? mood;  // Make mood mutable by removing final
   final String? imagePath;
   final Uint8List? image;
 
   DiaryEntry({
     this.id,
     required this.title,
-    required this.content,
+    required String content,  // Pass content as a parameter
     required this.date,
-    this.mood,
+    this.mood,  // Mood can now be set and modified
     this.imagePath,
     this.image,
-  });
+  }) : _content = content;  // Initialize _content via constructor
+
+  // Getter for content
+  String get content => _content;
+
+  // Setter for content
+  set content(String newContent) {
+    _content = newContent;
+  }
 
   // Convert DiaryEntry object to a map for saving in the database
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
-      'content': content,
+      'content': _content,  // Use _content instead of content
       'date': date.toIso8601String(),
-      'mood': mood,
+      'mood': mood,  // Mood can now be included in the map
       'imagePath': imagePath,
       'image': image != null ? base64Encode(image!) : null,
     };
@@ -38,9 +46,9 @@ class DiaryEntry {
     return DiaryEntry(
       id: map['id'],
       title: map['title'],
-      content: map['content'],
+      content: map['content'],  // Directly use the map's content value
       date: DateTime.parse(map['date']),
-      mood: map['mood'],
+      mood: map['mood'], // Mood can now be retrieved from the map
       imagePath: map['imagePath'],
       image: map['image'] != null ? base64Decode(map['image']) : null,  // Decode the base64 string to Uint8List
     );
@@ -52,16 +60,16 @@ class DiaryEntry {
     String? title,
     String? content,
     DateTime? date,
-    String? mood,
+    String? mood,   // Mood can now be modified here
     String? imagePath,
     Uint8List? image,
   }) {
     return DiaryEntry(
       id: id ?? this.id,
       title: title ?? this.title,
-      content: content ?? this.content,
+      content: content ?? this._content,  // Use _content here
       date: date ?? this.date,
-      mood: mood ?? this.mood,
+      mood: mood ?? this.mood,   // Set mood here if provided
       imagePath: imagePath ?? this.imagePath,
       image: image ?? this.image,
     );

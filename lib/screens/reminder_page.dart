@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -15,13 +16,22 @@ class _ReminderPageState extends State<ReminderPage> {
   @override
   void initState() {
     super.initState();
+    tz.initializeTimeZones();
     _initializeNotifications();
-    tz.initializeTimeZones(); // Initialize timezones
+  }
+
+  // Request notification permission
+  void _requestNotificationPermission() async {
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
   }
 
   // Initialize local notifications
   void _initializeNotifications() async {
-    var androidInitialize = AndroidInitializationSettings('app_icon'); // Ensure app_icon is present in assets
+    _requestNotificationPermission(); // Ensure permission is requested before initializing
+
+    var androidInitialize = AndroidInitializationSettings('app_icon'); // Ensure app_icon is available in assets
     var initializationSettings = InitializationSettings(android: androidInitialize);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
@@ -33,9 +43,7 @@ class _ReminderPageState extends State<ReminderPage> {
       final scheduledTime = DateTime(now.year, now.month, now.day, _time!.hour, _time!.minute);
 
       // Get the local timezone
-      final localTimezone = tz.getLocation('Asia/Kolkata'); // Adjust this according to your region
-
-      // Convert the DateTime to TZDateTime
+      final localTimezone = tz.getLocation('Asia/Kolkata'); // Adjust according to your region
       final tzDateTime = tz.TZDateTime.from(scheduledTime, localTimezone);
 
       var androidDetails = AndroidNotificationDetails(
@@ -44,8 +52,8 @@ class _ReminderPageState extends State<ReminderPage> {
         channelDescription: 'Channel for daily diary reminders',
         importance: Importance.high,
         priority: Priority.high,
-        enableVibration: true, // Vibrates when notification is triggered
-        playSound: true, // Play sound on notification
+        enableVibration: true,
+        playSound: true,
       );
 
       var platformDetails = NotificationDetails(android: androidDetails);

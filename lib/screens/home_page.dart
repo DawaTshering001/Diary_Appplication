@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/theme_provider.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:provider/provider.dart';
 
@@ -61,181 +62,185 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('Diary App'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddEditEntryPage()),
-              );
-            },
+    return Consumer<ThemeProvider>( // Wrap the Scaffold with Consumer to listen to theme changes
+      builder: (context, themeProvider, _) {
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text('Diary App'),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddEditEntryPage()),
+                  );
+                },
+              ),
+            ],
+            leading: IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+            ),
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(120.0), // Adjusted size
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    // Full-width Search TextField for text-based search
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        children: [
+                          // Date picker button
+                          IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () => _selectDate(context),
+                          ),
+                          // Display the selected date or placeholder
+                          Text(
+                            _selectedDate == null
+                                ? 'Search by date: Pick a date for search'
+                                : 'Selected Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          // Show All Entries button aligned with the date picker
+                          if (_selectedDate != null)
+                            ElevatedButton(
+                              onPressed: _clearDateFilter,
+                              child: Text("Show All Entries"),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ],
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(120.0), // Adjusted size
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
               children: [
-                // Full-width Search TextField for text-based search
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    children: [
-                      // Date picker button
-                      IconButton(
-                        icon: Icon(Icons.calendar_today),
-                        onPressed: () => _selectDate(context),
-                      ),
-                      // Display the selected date or placeholder
-                      Text(
-                        _selectedDate == null
-                            ? 'Search by date: Pick a date for search'
-                            : 'Selected Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      // Show All Entries button aligned with the date picker
-                      if (_selectedDate != null)
-                        ElevatedButton(
-                          onPressed: _clearDateFilter,
-                          child: Text("Show All Entries"),
-                        ),
-                    ],
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
                   ),
+                  child: Text(
+                    'Diary App Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.format_paint),
+                  title: Text('Themes'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ThemesPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('Settings'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingsPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.alarm),
+                  title: Text('Reminder'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ReminderPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.lock),
+                  title: Text('Lock your Diary'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LockPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.info),
+                  title: Text('About Us'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AboutUsPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.lock),
+                  title: Text('Privacy & Security'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PrivacySecurityPage()),
+                    );
+                  },
                 ),
               ],
             ),
           ),
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.grey,
-              ),
-              child: Text(
-                'Diary App Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.format_paint),
-              title: Text('Themes'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ThemesPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Reminder'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ReminderPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.lock),
-              title: Text('Lock your Diary'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LockPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.info),
-              title: Text('About Us'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AboutUsPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.lock),
-              title: Text('Privacy & Security'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PrivacySecurityPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Consumer<EntryProvider>(
-        builder: (context, provider, _) {
-          final filteredEntries = _selectedDate == null
-              ? provider.entries
-              : provider.entries.where((entry) {
-                  final formattedDate = DateFormat('yyyy-MM-dd').format(entry.date);
-                  return formattedDate == DateFormat('yyyy-MM-dd').format(_selectedDate!);
-                }).toList();
+          body: Consumer<EntryProvider>(
+            builder: (context, provider, _) {
+              final filteredEntries = _selectedDate == null
+                  ? provider.entries
+                  : provider.entries.where((entry) {
+                      final formattedDate = DateFormat('yyyy-MM-dd').format(entry.date);
+                      return formattedDate == DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                    }).toList();
 
-          if (filteredEntries.isEmpty) {
-            return Center(child: Text('No diary entries available.'));
-          }
+              if (filteredEntries.isEmpty) {
+                return Center(child: Text('No diary entries available.'));
+              }
 
-          return ListView.builder(
-            itemCount: filteredEntries.length,
-            itemBuilder: (context, index) {
-              return EntryCard(
-                entry: filteredEntries[index],
-                onDelete: () {
-                  final entryId = filteredEntries[index].id;
-                  if (entryId != null) {
-                    provider.deleteEntryLocally(entryId);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Entry deleted successfully')),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: Entry ID is null')),
-                    );
-                  }
+              return ListView.builder(
+                itemCount: filteredEntries.length,
+                itemBuilder: (context, index) {
+                  return EntryCard(
+                    entry: filteredEntries[index],
+                    onDelete: () {
+                      final entryId = filteredEntries[index].id;
+                      if (entryId != null) {
+                        provider.deleteEntryLocally(entryId);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Entry deleted successfully')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: Entry ID is null')),
+                        );
+                      }
+                    },
+                  );
                 },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

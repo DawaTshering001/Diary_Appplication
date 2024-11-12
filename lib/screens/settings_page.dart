@@ -40,16 +40,7 @@ class SettingsPage extends StatelessWidget {
               _toggleTheme(context);
             },
           ),
-          
-          // Account management
-          ListTile(
-            title: Text('Account'),
-            trailing: Icon(Icons.account_circle),
-            onTap: () {
-              // Account settings functionality (e.g., logout, change password)
-            },
-          ),
-          
+        
           // Privacy settings
           ListTile(
             title: Text('Privacy'),
